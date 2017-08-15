@@ -3,18 +3,18 @@ package com.rxjavastudy;
 import android.app.Activity;
 import android.os.Bundle;
 
+import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import com.orhanobut.logger.Logger;
 import com.rxjavastudy.api.API;
-import com.rxjavastudy.bean.request.LoginRequest;
-import com.rxjavastudy.bean.response.BaseResponseBean;
-import com.rxjavastudy.bean.response.LoginResponseBean;
 import com.rxjavastudy.bean.response.UserFollowers;
 
 import java.util.List;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -25,54 +25,38 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        login();
         listUserFollowers();
+
     }
 
     void listUserFollowers() {
         Retrofit retrofit = new Retrofit.Builder().baseUrl(API.BASE_URL_GIT_HUB)
-                .addConverterFactory(GsonConverterFactory.create()).build();
+                .addConverterFactory(GsonConverterFactory.create()).addCallAdapterFactory(RxJava2CallAdapterFactory.create()).build();
         API api = retrofit.create(API.class);
-        Call<List<UserFollowers>> call = api.listUserFollowers("lvzhendong");
 
-        call.enqueue(new Callback<List<UserFollowers>>() {
+        api.listUserFollowers("lvzhendong").subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+            .subscribe(new Observer<List<UserFollowers>>() {
             @Override
-            public void onResponse(Call<List<UserFollowers>> call, Response<List<UserFollowers>>
-                    response) {
-                Logger.i(response.body().get(0).getLogin());
+            public void onSubscribe(@NonNull Disposable d) {
+
             }
 
             @Override
-            public void onFailure(Call<List<UserFollowers>> call, Throwable t) {
-                Logger.i(t.getMessage());
+            public void onNext(@NonNull List<UserFollowers> userFollowers) {
+                Logger.i(userFollowers.get(0).getLogin());
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                Logger.e("error");
+            }
+
+            @Override
+            public void onComplete() {
+                Logger.e("onComplete");
             }
         });
 
-    }
-
-    void login() {
-        Retrofit retrofit = new Retrofit.Builder().baseUrl(API.BASE_URL_EHUU).addConverterFactory
-                (GsonConverterFactory.create()).build();
-        API api = retrofit.create(API.class);
-
-        LoginRequest request = new LoginRequest();
-        request.setLoginName("111865");
-        request.setPassword("123456");
-
-        Call<BaseResponseBean<LoginResponseBean>> call = api.login(request);
-        call.enqueue(new Callback<BaseResponseBean<LoginResponseBean>>() {
-            @Override
-            public void onResponse(Call<BaseResponseBean<LoginResponseBean>> call,
-                                   Response<BaseResponseBean<LoginResponseBean>> response) {
-
-                Logger.i(response.toString());
-            }
-
-            @Override
-            public void onFailure(Call<BaseResponseBean<LoginResponseBean>> call, Throwable t) {
-                Logger.i(t.getMessage());
-            }
-        });
     }
 
 }
