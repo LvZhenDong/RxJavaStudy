@@ -4,7 +4,7 @@ package com.rxjavastudy.bean.response;
  * Created by Administrator on 2017/7/3.
  */
 
-public class UserFollowers {
+public class UserFollower {
 
     /**
      * login : octocat

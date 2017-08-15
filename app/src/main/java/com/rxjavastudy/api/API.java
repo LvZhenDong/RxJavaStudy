@@ -1,6 +1,7 @@
 package com.rxjavastudy.api;
 
-import com.rxjavastudy.bean.response.UserFollowers;
+import com.rxjavastudy.bean.response.Branch;
+import com.rxjavastudy.bean.response.UserFollower;
 
 import java.util.List;
 
@@ -14,5 +15,8 @@ public interface API {
     String BASE_URL_GIT_HUB = "https://api.github.com/";
 
     @GET("users/{user}/followers")
-    Observable<List<UserFollowers>> listUserFollowers(@Path("user") String user);
+    Observable<List<UserFollower>> listUserFollowers(@Path("user") String user);
+
+    @GET("repos/{owner}/{repo}/branches")
+    Observable<List<Branch>> listBranches(@Path("owner") String owner,@Path("repo") String repo);
 }
