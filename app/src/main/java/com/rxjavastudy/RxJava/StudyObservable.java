@@ -1,6 +1,7 @@
 package com.rxjavastudy.RxJava;
 
 import android.content.Context;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.orhanobut.logger.Logger;
@@ -111,5 +112,30 @@ public class StudyObservable {
                         Toast.makeText(context, "倒计时结束", Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
+
+    ObservableEmitter emitter;
+    public void aboutError(){
+        Observable.create(new ObservableOnSubscribe<String>() {
+            @Override
+            public void subscribe(ObservableEmitter<String> e) throws Exception {
+                e.onNext("about error");
+                emitter=e;
+            }
+        }).subscribe(new Consumer<String>() {
+            @Override
+            public void accept(String s) throws Exception {
+                Log.i("kklv", s);
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                Log.i("kklv", "accept error");
+            }
+        });
+    }
+
+    public void sendError(){
+        emitter.onError(new Throwable());
     }
 }
